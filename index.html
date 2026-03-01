@@ -5,11 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Chart.js CDN -->
-   <script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
+        }
+
+        input {
+            padding: 10px;
+            width: 65%;
+            border-radius: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 15px;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .add-btn { background: #00c853; color: white; }
+        .done-btn { background: #00e676; color: black; }
+        .delete-btn { background: #ff5252; color: white; }
+
+        ul { list-style: none; padding: 0; }
+
+        li {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        canvas {
+            background: white;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚀 Achievo - Daily Growth Tracker</h1>
+
+<div class="card">
+    <h2>📝 Add Today's Task</h2>
+    <input type="text" id="taskInput" placeholder="Enter your task...">
+    <button class="add-btn" onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+</div>
+
+<div class="card">
+    <h2>📊 Today's Statistics</h2>
+    <p>Total Tasks: <span id="totalTasks">0</span></p>
+    <p>Completed: <span id="completedTasks">0</span></p>
+    <p>Success Rate: <span id="successRate">0%</span></p>
+</div>
+
+<div class="card">
+    <h2>📈 Growth Chart</h2>
+    <canvas id="growthChart"></canvas>
+</div>
+
+<script>
     let today = new Date().toLocaleDateString();
     let data = JSON.parse(localStorage.getItem("achievoData")) || {};
-    let streak = parseInt(localStorage.getItem("streak")) || 0;
-    let lastCompletedDate = localStorage.getItem("lastCompletedDate") || "";
 
     if (!data[today]) {
         data[today] = [];
@@ -17,8 +101,6 @@
 
     function saveData() {
         localStorage.setItem("achievoData", JSON.stringify(data));
-        localStorage.setItem("streak", streak);
-        localStorage.setItem("lastCompletedDate", lastCompletedDate);
     }
 
     function addTask() {
@@ -44,30 +126,6 @@
         renderTasks();
     }
 
-    function updateStats() {
-        let total = data[today].length;
-        let completed = data[today].filter(t => t.done).length;
-        let rate = total === 0 ? 0 : ((completed / total) * 100).toFixed(2);
-
-        document.getElementById("totalTasks").innerText = total;
-        document.getElementById("completedTasks").innerText = completed;
-        document.getElementById("successRate").innerText = rate + "%";
-
-        checkStreak(total, completed);
-    }
-
-    function checkStreak(total, completed) {
-        if (total > 0 && completed === total) {
-            if (lastCompletedDate !== today) {
-                streak++;
-                lastCompletedDate = today;
-            }
-        }
-
-        document.getElementById("streakCount").innerText = streak;
-        saveData();
-    }
-
     function renderTasks() {
         let list = document.getElementById("taskList");
         list.innerHTML = "";
@@ -80,10 +138,10 @@
                     ${task.text}
                 </span>
                 <div>
-                    <button onclick="toggleTask(${index})">
+                    <button class="done-btn" onclick="toggleTask(${index})">
                         ${task.done ? "Undo" : "Done"}
                     </button>
-                    <button onclick="deleteTask(${index})">
+                    <button class="delete-btn" onclick="deleteTask(${index})">
                         Delete
                     </button>
                 </div>
@@ -93,6 +151,38 @@
         });
 
         updateStats();
+        updateChart();
+    }
+
+    function updateStats() {
+        let total = data[today].length;
+        let completed = data[today].filter(t => t.done).length;
+        let rate = total === 0 ? 0 : ((completed / total) * 100).toFixed(2);
+
+        document.getElementById("totalTasks").innerText = total;
+        document.getElementById("completedTasks").innerText = completed;
+        document.getElementById("successRate").innerText = rate + "%";
+    }
+
+    function updateChart() {
+        let labels = Object.keys(data);
+        let rates = labels.map(date => {
+            let total = data[date].length;
+            let completed = data[date].filter(t => t.done).length;
+            return total === 0 ? 0 : ((completed / total) * 100).toFixed(2);
+        });
+
+        new Chart(document.getElementById("growthChart"), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Success Rate %',
+                    data: rates,
+                    borderWidth: 2
+                }]
+            }
+        });
     }
 
     renderTasks();
