@@ -1,46 +1,151 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Achievo - Daily Growth Tracker</title>
+    <title>Daily Growth Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
-            margin: 0;
-            padding: 50px;
+            text-align: center;
+            padding: 30px;
         }
 
-        h1 {
-            font-size: 50px;
+        .card {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
         }
 
-        p {
-            font-size: 20px;
+        input {
+            padding: 10px;
+            width: 70%;
+            border-radius: 10px;
+            border: none;
+            margin-right: 10px;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 12px 25px;
-            background: white;
-            color: #1e3c72;
-            text-decoration: none;
-            border-radius: 25px;
-            margin-top: 20px;
-            font-weight: bold;
+        button {
+            padding: 10px 20px;
+            background: #00c853;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
         }
 
-        .btn:hover {
-            background: #f2f2f2;
+        button:hover {
+            background: #00a844;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.7;
         }
     </style>
 </head>
 
 <body>
-    <h1>Achievo 🚀</h1>
-    <p>Your Personal Daily Growth & Task Tracking Platform</p>
-    <a href="#" class="btn">Start Tracking</a>
+
+<h1>🚀 Daily Growth Tracker</h1>
+
+<div class="card">
+    <h2>🔥 Today's Motivation</h2>
+    <p>Success is built daily.</p>
+</div>
+
+<div class="card">
+    <h2>📝 Add Daily Task</h2>
+    <input type="text" id="taskInput" placeholder="Enter your task...">
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+</div>
+
+<div class="card">
+    <h2>📊 Growth Statistics</h2>
+    <p>Total Tasks: <span id="totalTasks">0</span></p>
+    <p>Completed Tasks: <span id="completedTasks">0</span></p>
+    <p>Success Rate: <span id="successRate">0%</span></p>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function updateStats() {
+        let total = tasks.length;
+        let completed = tasks.filter(task => task.done).length;
+        let rate = total === 0 ? 0 : ((completed / total) * 100).toFixed(2);
+
+        document.getElementById("totalTasks").innerText = total;
+        document.getElementById("completedTasks").innerText = completed;
+        document.getElementById("successRate").innerText = rate + "%";
+    }
+
+    function renderTasks() {
+        let list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        tasks.forEach((task, index) => {
+            let li = document.createElement("li");
+
+            li.innerHTML = `
+                <span class="${task.done ? 'completed' : ''}">
+                    ${task.text}
+                </span>
+                <button onclick="toggleTask(${index})">
+                    ${task.done ? "Undo" : "Done"}
+                </button>
+            `;
+
+            list.appendChild(li);
+        });
+
+        updateStats();
+    }
+
+    function addTask() {
+        let input = document.getElementById("taskInput");
+        let text = input.value.trim();
+
+        if (text === "") return;
+
+        tasks.push({ text: text, done: false });
+        input.value = "";
+        saveTasks();
+        renderTasks();
+    }
+
+    function toggleTask(index) {
+        tasks[index].done = !tasks[index].done;
+        saveTasks();
+        renderTasks();
+    }
+
+    renderTasks();
+</script>
+
 </body>
 </html>
