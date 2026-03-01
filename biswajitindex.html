@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biswajit Daily Growth Tracker</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0a66c2, #004182);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.box {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #00c851;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #007e33;
+}
+
+.stats {
+    font-size: 18px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🚀 Daily Growth Tracker</h1>
+
+    <!-- Motivation Box -->
+    <div class="box">
+        <h2>🔥 Today's Motivation</h2>
+        <p id="motivation"></p>
+    </div>
+
+    <!-- Task Completion Box -->
+    <div class="box">
+        <h2>✅ Complete Today's Task</h2>
+        <button onclick="completeTask()">Mark as Completed</button>
+    </div>
+
+    <!-- Statistics Box -->
+    <div class="box">
+        <h2>📊 Growth Statistics</h2>
+        <div class="stats">
+            <p>Total Days Tracked: <span id="totalDays">0</span></p>
+            <p>Tasks Completed: <span id="completedDays">0</span></p>
+            <p>Success Rate: <span id="successRate">0%</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+
+// Motivation Quotes
+const quotes = [
+"Success is built daily.",
+"Small progress is still progress.",
+"Discipline beats motivation.",
+"Your growth is your power.",
+"Stay consistent, stay unstoppable."
+];
+
+// Show Random Quote
+document.getElementById("motivation").innerText =
+quotes[Math.floor(Math.random() * quotes.length)];
+
+// Load Data from Browser
+let totalDays = localStorage.getItem("totalDays") || 0;
+let completedDays = localStorage.getItem("completedDays") || 0;
+
+document.getElementById("totalDays").innerText = totalDays;
+document.getElementById("completedDays").innerText = completedDays;
+updateSuccessRate();
+
+// Function to Complete Task
+function completeTask() {
+    totalDays++;
+    completedDays++;
+
+    localStorage.setItem("totalDays", totalDays);
+    localStorage.setItem("completedDays", completedDays);
+
+    document.getElementById("totalDays").innerText = totalDays;
+    document.getElementById("completedDays").innerText = completedDays;
+
+    updateSuccessRate();
+}
+
+// Calculate Success Rate
+function updateSuccessRate() {
+    let rate = totalDays > 0 ?
+        ((completedDays / totalDays) * 100).toFixed(2) : 0;
+
+    document.getElementById("successRate").innerText = rate + "%";
+}
+
+</script>
+
+</body>
+</html>
